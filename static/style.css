@@ -1,0 +1,336 @@
+/* Global Reset & Fonts */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', sans-serif;
+}
+
+body {
+    background-color: #0f172a; /* Deep Dark Blue */
+    color: #f8fafc;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.app-container {
+    display: flex;
+    height: 100vh;
+}
+
+/* ================= Sidebar ================= */
+.sidebar {
+    width: 260px;
+    background-color: #1e293b;
+    padding: 2rem 1.5rem;
+    border-right: 1px solid #334155;
+    display: flex;
+    flex-direction: column;
+}
+
+.logo {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #f8fafc;
+    margin-bottom: 3rem;
+    letter-spacing: -1px;
+}
+
+.logo span {
+    color: #38bdf8; /* Glowing Cyan */
+}
+
+.sidebar nav {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    flex: 1;
+}
+
+.sidebar nav a {
+    color: #94a3b8;
+    text-decoration: none;
+    padding: 0.8rem 1rem;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.sidebar nav a:hover, .sidebar nav a.active {
+    background-color: #0ea5e9;
+    color: white;
+    box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
+}
+
+.sidebar-footer p {
+    color: #64748b;
+    font-size: 0.8rem;
+    text-align: center;
+}
+
+/* ================= Main Content ================= */
+.main-content {
+    flex: 1;
+    padding: 3rem;
+    overflow-y: auto;
+    background: radial-gradient(circle at top right, #1e293b, #0f172a);
+}
+
+header h1 {
+    font-size: 2.2rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+header p {
+    color: #94a3b8;
+    margin-bottom: 2.5rem;
+}
+
+
+
+/* ================= Cards ================= */
+.card {
+    background-color: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 16px;
+    padding: 2rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s ease;
+}
+
+.card h2 {
+    font-size: 1.2rem;
+    margin-bottom: 1.5rem;
+    color: #e2e8f0;
+}
+
+/* Form Inputs */
+.input-group {
+    margin-bottom: 1.5rem;
+}
+
+.input-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #94a3b8;
+    font-size: 0.9rem;
+}
+
+.input-wrapper {
+    position: relative;
+}
+
+.currency-symbol {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #64748b;
+    font-weight: 600;
+}
+
+.input-group input, .input-group select {
+    width: 100%;
+    padding: 1rem;
+    background-color: #0f172a;
+    border: 1px solid #334155;
+    color: white;
+    border-radius: 8px;
+    font-size: 1rem;
+    outline: none;
+    transition: border 0.3s;
+}
+
+.input-group input {
+    padding-left: 2.5rem; /* Space for $ sign */
+}
+
+.input-group input:focus, .input-group select:focus {
+    border-color: #38bdf8;
+}
+
+/* Button */
+.btn-primary {
+    width: 100%;
+    padding: 1rem;
+    background: linear-gradient(135deg, #0ea5e9, #2563eb);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(14, 165, 233, 0.4);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(14, 165, 233, 0.6);
+}
+
+/* ================= Result Card ================= */
+.net-amount {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.net-amount h1 {
+    font-size: 3.5rem;
+    color: #10b981; /* Green */
+    font-weight: 700;
+    text-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+}
+
+.net-amount span {
+    color: #94a3b8;
+    font-size: 1.1rem;
+}
+
+.breakdown {
+    border-top: 1px solid #334155;
+    padding-top: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.8rem;
+    color: #cbd5e1;
+    font-size: 0.95rem;
+}
+
+.row .red {
+    color: #ef4444;
+}
+
+/* AI Recommendation Box */
+.ai-recommendation {
+    background-color: rgba(56, 189, 248, 0.1);
+    border: 1px solid rgba(56, 189, 248, 0.3);
+    border-left: 4px solid #38bdf8;
+    padding: 1.2rem;
+    border-radius: 8px;
+}
+
+.ai-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #38bdf8;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.ai-recommendation p {
+    color: #e2e8f0;
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+/* ================= AG Grid Table ================= */
+.table-card {
+    padding: 1.5rem;
+}
+
+/* Customizing AG Grid to match our theme */
+.ag-theme-alpine-dark {
+    --ag-background-color: #1e293b;
+    --ag-header-background-color: #0f172a;
+    --ag-border-color: #334155;
+    --ag-row-hover-color: #334155;
+    --ag-font-family: 'Inter', sans-serif;
+}
+@media (max-width: 1200px) {
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+}
+}
+.chip {
+    background: rgba(56, 189, 248, 0.1);
+    border: 1px solid rgba(56, 189, 248, 0.3);
+    color: #38bdf8;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+.chip:hover {
+    background: #38bdf8;
+    color: white;
+}
+
+/* Fix for the squeezed cards */
+
+
+/* ================= FINAL PERFECT LAYOUT ================= */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1.2fr; /* 3 barabar columns */
+    gap: 1.5rem;
+    align-items: stretch;
+    margin-bottom: 2rem;
+    width: 100%;
+}
+
+/* Card padding fix */
+.card {
+    padding: 1.5rem !important; 
+    display: flex;
+    flex-direction: column;
+}
+
+/* Inputs ko full width do */
+.input-group input, .input-group select {
+    width: 100%;
+    padding: 0.8rem !important;
+    font-size: 0.95rem !important;
+    box-sizing: border-box; /* Taki input box se bahar na nikle */
+}
+
+/* Button ko full width do */
+.btn-primary {
+    width: 100%;
+    padding: 0.8rem !important;
+    font-size: 0.95rem !important;
+    white-space: nowrap; /* Button text ko tootne se bachaye */
+}
+
+/* Analytics Grid (Top 3 Cards) */
+.analytics-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+    width: 100%;
+}
+
+.analytics-grid .card {
+    background: linear-gradient(145deg, #1e293b, #0f172a);
+    border: 1px solid #334155;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    padding: 1.5rem !important;
+    text-align: center;
+}
+
+/* Mobile View Ke Liye (Agar screen chhoti ho) */
+@media (max-width: 1200px) {
+    .dashboard-grid, .analytics-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Result Cards ke liye premium spacing */
+#platformsContainer .card {
+    background-color: #1e293b;
+    border-radius: 12px;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+#platformsContainer .card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+}

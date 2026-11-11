@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RateMate | AI Payment Agent</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community/styles/ag-grid.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community/styles/ag-theme-alpine.css"/>
+
+        
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+        <!-- ================= AUTH OVERLAY ================= -->
+    <div id="authOverlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background: #0f172a; z-index: 9999; display: flex;">
+        
+        <!-- Left Side: Branding -->
+        <div style="flex: 1; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); display: flex; flex-direction: column; justify-content: center; padding: 4rem; border-right: 1px solid #334155; position: relative; overflow: hidden;">
+            <div style="position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(56,189,248,0.1) 0%, transparent 60%); z-index: 0;"></div>
+            
+            <div style="position: relative; z-index: 1;">
+                <h1 style="font-size: 3.5rem; color: #f8fafc; margin-bottom: 1rem; letter-spacing: -2px;">RateMate<span style="color: #38bdf8;">.</span></h1>
+                <h2 style="font-size: 1.5rem; color: #cbd5e1; font-weight: 400; margin-bottom: 2rem;">The AI Financial Agent for Global Freelancers.</h2>
+                <ul style="color: #94a3b8; font-size: 1.1rem; line-height: 2; list-style: none; padding: 0;">
+                    <li>✨ Real-time Net Payout Prediction</li>
+                    <li>🤖 Agentic AI Multi-Platform Comparison</li>
+                    <li>📈 Machine Learning FX Forecasting</li>
+                    <li>💸 Zero Hidden Fee Leakage</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Right Side: Auth Forms -->
+        <div style="flex: 1; display: flex; justify-content: center; align-items: center; background: #0f172a;">
+            <div style="width: 100%; max-width: 420px; padding: 2rem;">
+                
+                <!-- Login Form -->
+                <div id="loginForm">
+                    <h2 style="font-size: 2rem; color: #f8fafc; margin-bottom: 0.5rem;">Welcome Back</h2>
+                    <p style="color: #94a3b8; margin-bottom: 2rem;">Enter your credentials to access your dashboard.</p>
+                    
+                    <div class="input-group" style="margin-bottom: 1.5rem; text-align: left;">
+                        <label style="color: #cbd5e1; font-size: 0.9rem; font-weight: 500;">Email Address</label>
+                        <input type="email" id="loginEmail" value="demo@ratemate.ai" style="width: 100%; padding: 1rem; background: #1e293b; border: 1px solid #334155; color: white; border-radius: 8px; margin-top: 0.5rem;">
+                    </div>
+                    
+                    <div class="input-group" style="margin-bottom: 2rem; text-align: left;">
+                        <div style="display: flex; justify-content: space-between;">
+                            <label style="color: #cbd5e1; font-size: 0.9rem; font-weight: 500;">Password</label>
+                            <a href="#" style="color: #38bdf8; font-size: 0.8rem; text-decoration: none;">Forgot?</a>
+                        </div>
+                        <input type="password" id="loginPassword" value="password123" style="width: 100%; padding: 1rem; background: #1e293b; border: 1px solid #334155; color: white; border-radius: 8px; margin-top: 0.5rem;">
+                    </div>
+                    
+                    <button class="btn-primary" id="loginBtn" style="width: 100%; padding: 1rem; font-size: 1rem; font-weight: 600;">Sign In</button>
+                    
+                    <p style="color: #64748b; text-align: center; margin-top: 2rem; font-size: 0.9rem;">
+                        Don't have an account? <a href="#" onclick="toggleAuthForm('signup')" style="color: #38bdf8; text-decoration: none;">Sign up</a>
+                    </p>
+                </div>
+
+                <!-- Signup Form -->
+                <div id="signupForm" style="display: none;">
+                    <h2 style="font-size: 2rem; color: #f8fafc; margin-bottom: 0.5rem;">Create Account</h2>
+                    <p style="color: #94a3b8; margin-bottom: 2rem;">Join RateMate to optimize your international payments.</p>
+                    
+                    <div class="input-group" style="margin-bottom: 1.5rem; text-align: left;">
+                        <label style="color: #cbd5e1; font-size: 0.9rem; font-weight: 500;">Email Address</label>
+                        <input type="email" id="signupEmail" placeholder="you@example.com" style="width: 100%; padding: 1rem; background: #1e293b; border: 1px solid #334155; color: white; border-radius: 8px; margin-top: 0.5rem;">
+                    </div>
+                    
+                    <div class="input-group" style="margin-bottom: 2rem; text-align: left;">
+                        <label style="color: #cbd5e1; font-size: 0.9rem; font-weight: 500;">Password</label>
+                        <input type="password" id="signupPassword" placeholder="Create a strong password" style="width: 100%; padding: 1rem; background: #1e293b; border: 1px solid #334155; color: white; border-radius: 8px; margin-top: 0.5rem;">
+                    </div>
+                    
+                    <button class="btn-primary" id="signupBtn" style="width: 100%; padding: 1rem; font-size: 1rem; font-weight: 600;">Sign Up</button>
+                    
+                    <p style="color: #64748b; text-align: center; margin-top: 2rem; font-size: 0.9rem;">
+                        Already have an account? <a href="#" onclick="toggleAuthForm('login')" style="color: #38bdf8; text-decoration: none;">Sign In</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">RateMate<span>.</span></div>
+            <nav>
+                <a href="#" class="active" id="nav-dashboard" onclick="switchTab('dashboard')">Dashboard</a>
+                <a href="#" id="nav-invoices" onclick="switchTab('invoices')">Invoices</a>
+                <a href="#" id="nav-agent" onclick="switchTab('agent')">Compare Platforms</a>
+                <a href="#" id="nav-forecast" onclick="switchTab('forecast')">FX Insights</a>
+                <a href="#" onclick="return false;">Settings</a>
+
+            </nav>
+            <div class="sidebar-footer">
+                <p>AI Agent for Freelancers</p>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            
+            <!-- ================= DASHBOARD SECTION ================= -->
+            <div id="dashboard-section">
+                <header>
+                    <h1>Net Payout</h1>
+                    <p>Know your exact net payout and best withdrawal time before you invoice.</p>
+                </header>
+
+                <!-- Analytics Dashboard -->
+                <div class="analytics-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-bottom: 1.5rem;">
+                    <div class="card" style="padding: 1.5rem; text-align: center;">
+                        <p style="color: #94a3b8; font-size: 0.9rem; margin-bottom: 0.5rem;">Total Invoices</p>
+                        <h2 id="statInvoices" style="font-size: 2rem; color: #f8fafc;">0</h2>
+                    </div>
+                    <div class="card" style="padding: 1.5rem; text-align: center;">
+                        <p style="color: #94a3b8; font-size: 0.9rem; margin-bottom: 0.5rem;">Total Net Earned</p>
+                        <h2 id="statNet" style="font-size: 2rem; color: #10b981;">₹0</h2>
+                    </div>
+                    <div class="card" style="padding: 1.5rem; text-align: center;">
+                        <p style="color: #94a3b8; font-size: 0.9rem; margin-bottom: 0.5rem;">Total Fees Paid</p>
+                        <h2 id="statFees" style="font-size: 2rem; color: #f59e0b;">₹0</h2>
+                    </div>
+                </div>
+
+                <div class="dashboard-grid">
+                    <!-- Input Form Card -->
+                    <div class="card form-card">
+                        <h2>New Invoice</h2>
+                        <form id="predictForm">
+                            <!-- Invoice Currency Dropdown -->
+                            <div class="input-group">
+                                <label>Invoice Currency</label>
+                                <select id="invoiceCurrency" style="width: 100%; padding: 1rem; background: #0f172a; border: 1px solid #334155; color: white; border-radius: 8px; outline: none;">
+                                    <option value="USD">USD - US Dollar</option>
+                                    <option value="EUR">EUR - Euro</option>
+                                    <option value="GBP">GBP - British Pound</option>
+                                    <option value="AUD">AUD - Australian Dollar</option>
+                                </select>
+                            </div>
+
+                            <!-- Invoice Amount Input -->
+                            <div class="input-group">
+                                <label>Invoice Amount</label>
+                                <div class="input-wrapper">
+                                    <span class="currency-symbol" id="invoiceSymbol">$</span>
+                                    <input type="number" id="amount" value="2000" required>
+                                </div>
+                            </div>
+                            <div class="input-group">
+                                <label>Target Currency</label>
+                                <select id="currency">
+                                    <option value="INR">INR - Indian Rupee</option>
+                                    <option value="EUR">EUR - Euro</option>
+                                    <option value="GBP">GBP - British Pound</option>
+                                    <option value="AUD">AUD - Australian Dollar</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn-primary" id="calcBtn">
+                                Calculate Net Payout
+                            </button>
+                        </form>
+                    </div>
+                    
+                    <!-- Reverse Calculator Card -->
+                                        <!-- Reverse Calculator Card -->
+                                        <!-- Reverse Calculator Card -->
+                    <div class="card form-card">
+                        <h2>Reverse Calculator</h2>
+                        <p style="color: #94a3b8; font-size: 0.9rem; margin-bottom: 1rem;">How much to invoice?</p>
+                        
+                        <!-- Target Currency (Jo user ko chahiye) -->
+                        <div class="input-group">
+                            <label>I want to receive</label>
+                            <select id="reverseCurrency" style="width: 100%; padding: 1rem; background: #0f172a; border: 1px solid #334155; color: white; border-radius: 8px; outline: none;">
+                                <option value="INR">INR - Indian Rupee</option>
+                                <option value="EUR">EUR - Euro</option>
+                                <option value="GBP">GBP - British Pound</option>
+                                <option value="USD">USD - US Dollar</option>
+                            </select>
+                        </div>
+
+                        <!-- User ki currency (Jo uske paas hai) -->
+                        <div class="input-group">
+                            <label>I will pay using</label>
+                            <select id="reverseUserCurrency" style="width: 100%; padding: 1rem; background: #0f172a; border: 1px solid #334155; color: white; border-radius: 8px; outline: none;">
+                                <option value="INR">INR - Indian Rupee</option>
+                                <option value="USD">USD - US Dollar</option>
+                                <option value="EUR">EUR - Euro</option>
+                                <option value="GBP">GBP - British Pound</option>
+                            </select>
+                        </div>
+
+                        <!-- Desired Amount Input -->
+                        <div class="input-group">
+                            <label>Desired Net Amount (<span id="reverseSymbol">₹</span>)</label>
+                            <input type="number" id="desiredInr" value="50000">
+                        </div>
+                        
+                        <button type="button" class="btn-primary" id="reverseCalcBtn">
+                            Get Invoice Amount
+                        </button>
+                    </div>
+
+                    <!-- Result Card -->
+                    <div class="card result-card" id="resultCard" style="opacity: 0.5;">
+                        <h2>Predicted Payout</h2>
+                        <div class="net-amount">
+                            <h1 id="netLocal">₹0.00</h1>
+                            <span id="netUsd">($0.00 USD)</span>
+                        </div>
+                        
+                            <div class="breakdown">
+                            <div class="row"><span>Gross Amount:</span> <span id="grossUsd">$0.00</span></div>
+                            <div class="row"><span>PayPal Fee (4.4%):</span> <span id="paypalFee" class="red">-$0.00</span></div>
+                            <div class="row"><span>FX Markup (4%):</span> <span id="fxMarkup" class="red">-$0.00</span></div>
+                            <div class="row"><span>Live FX Rate:</span> <span id="fxRate">1 USD = 0</span></div>
+                        </div>
+
+                        <div class="ai-recommendation" id="aiBox">
+                            <div class="ai-header">
+                                <span class="sparkle">✨</span> AI Recommendation
+                            </div>
+                            <p id="aiText">Awaiting calculation...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- What-If Simulator -->
+                <div class="card" style="margin-top: 1.5rem; background: linear-gradient(145deg, #1e293b, #0f172a); border: 1px solid #334155;">
+                    <h2>🔮 What-If Simulator</h2>
+                    <p style="color: #94a3b8; font-size: 0.9rem; margin-bottom: 1.5rem;">See how FX rate changes affect your payout.</p>
+                    
+                    <div style="display: flex; gap: 2rem; align-items: center;">
+                        <div style="flex: 1;">
+                            <label style="color: #38bdf8; font-weight: 600;">Simulated Rate Change: <span id="rateChangeValue">0%</span></label>
+                            <input type="range" id="rateSlider" min="-5" max="5" value="0" step="0.5" style="width: 100%; margin-top: 10px; cursor: pointer;">
+                        </div>
+                        <div style="flex: 1; text-align: right;">
+                            <p style="color: #94a3b8; font-size: 0.9rem;">New Simulated Payout:</p>
+                            <h2 id="simulatedPayout" style="color: #10b981; font-size: 2rem;">0.00</h2>
+                        </div>
+                    </div>
+                </div>
+
+            
+
+                <!-- Multi-Currency Optimizer -->
+                <div class="card" style="margin-top: 1.5rem; background: linear-gradient(145deg, #1e293b, #0f172a); border: 1px solid #334155;">
+                    <h2>🌍 Multi-Currency Optimizer</h2>
+                    <p style="color: #94a3b8; font-size: 0.9rem; margin-bottom: 1.5rem;">Which currency gives you the highest net payout?</p>
+                    
+                    <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
+                        <select id="baseCurrency" style="padding: 1rem; background: #0f172a; border: 1px solid #334155; color: white; border-radius: 8px; outline: none; width: 150px;">
+                            <option value="USD">I have USD</option>
+                            <option value="EUR">I have EUR</option>
+                            <option value="GBP">I have GBP</option>
+                            <option value="INR">I have INR</option>
+                        </select>
+
+                        <div style="flex: 1; position: relative;">
+                            <input type="number" id="optimizeAmount" value="2000" style="width: 100%; padding: 1rem; background: #0f172a; border: 1px solid #334155; color: white; border-radius: 8px; outline: none;" placeholder="Amount">
+                        </div>
+                        
+                        <button class="btn-primary" id="optimizeBtn" style="width: auto; padding: 1rem 2rem;">Compare</button>
+                    </div>
+
+                    <!-- Results Grid -->
+                    <div id="optimizeResults" style="display: none; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 1rem;">
+                        <div class="card" style="padding: 1rem; text-align: center; border: 1px solid #334155;" id="box-USD">
+                            <p style="color: #94a3b8; font-size: 0.85rem;" class="box-label">USD</p>
+                            <h3 style="color: #f8fafc; font-size: 1.5rem;" class="box-value">$0</h3>
+                            <p style="color: #38bdf8; font-size: 0.75rem;" class="box-rate">Rate: 0</p>
+                        </div>
+                        <div class="card" style="padding: 1rem; text-align: center; border: 1px solid #334155;" id="box-EUR">
+                            <p style="color: #94a3b8; font-size: 0.85rem;" class="box-label">EUR</p>
+                            <h3 style="color: #f8fafc; font-size: 1.5rem;" class="box-value">€0</h3>
+                            <p style="color: #38bdf8; font-size: 0.75rem;" class="box-rate">Rate: 0</p>
+                        </div>
+                        <div class="card" style="padding: 1rem; text-align: center; border: 1px solid #334155;" id="box-GBP">
+                            <p style="color: #94a3b8; font-size: 0.85rem;" class="box-label">GBP</p>
+                            <h3 style="color: #f8fafc; font-size: 1.5rem;" class="box-value">£0</h3>
+                            <p style="color: #38bdf8; font-size: 0.75rem;" class="box-rate">Rate: 0</p>
+                        </div>
+                        <div class="card" style="padding: 1rem; text-align: center; border: 1px solid #334155;" id="box-INR">
+                            <p style="color: #94a3b8; font-size: 0.85rem;" class="box-label">INR</p>
+                            <h3 style="color: #f8fafc; font-size: 1.5rem;" class="box-value">₹0</h3>
+                            <p style="color: #38bdf8; font-size: 0.75rem;" class="box-rate">Rate: 0</p>
+                        </div>
+                    </div>
+                    
+                    <div id="bestCurrencyBox" style="display: none; margin-top: 1rem; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); padding: 1rem; border-radius: 8px;">
+                        <p style="color: #10b981; font-weight: 600;">AI Recommendation: <span id="bestCurrencyText"></span></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= INVOICES SECTION ================= -->
+            <div id="invoices-section" style="display: none;">
+                <header>
+                    <h1>Invoice History</h1>
+                    <p>All your generated invoices and predicted payouts.</p>
+                </header>
+                
+                <div class="card table-card">
+                    <h2>All Invoices</h2>
+                    <div id="invoicesGrid" class="ag-theme-alpine-dark" style="height: 500px; width: 100%;"></div>
+                </div>
+            </div>
+
+            <!--- Forcasting section-->
+                        <!-- ================= FORECAST SECTION ================= -->
+            <div id="forecast-section" style="display: none;">
+                <header>
+                    <h1>ML FX Forecasting</h1>
+                    <p>AI-powered 3-day prediction based on historical trends.</p>
+                </header>
+
+                <!-- Forecast & Alert Controls (Side by Side) -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
+                    
+                    <!-- Run Forecast Card -->
+                    <div class="card" style="padding: 1.5rem; display: flex; flex-direction: column; justify-content: center;">
+                        <h3 style="margin-bottom: 1rem; color: #f8fafc;">📈 Run Prediction</h3>
+                        <div style="display: flex; gap: 1rem; align-items: center; margin-bottom: 1rem;">
+                            <div style="flex: 1;">
+                                <label style="font-size: 0.85rem; color: #94a3b8;">From</label>
+                                <select id="forecastFrom" style="width: 100%; padding: 0.8rem; background: #0f172a; border: 1px solid #334155; color: white; border-radius: 8px; outline: none;">
+                                    <option value="USD">USD</option>
+                                    <option value="EUR">EUR</option>
+                                    <option value="GBP">GBP</option>
+                                    <option value="INR">INR</option>
+                                </select>
+                            </div>
+                            <div style="flex: 1;">
+                                <label style="font-size: 0.85rem; color: #94a3b8;">To</label>
+                                <select id="forecastTo" style="width: 100%; padding: 0.8rem; background: #0f172a; border: 1px solid #334155; color: white; border-radius: 8px; outline: none;">
+                                    <option value="INR">INR</option>
+                                    <option value="USD">USD</option>
+                                    <option value="EUR">EUR</option>
+                                    <option value="GBP">GBP</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button class="btn-primary" id="forecastBtn" style="width: 100%; padding: 0.8rem;">Run Forecast</button>
+                    </div>
+
+                    <!-- Smart Alert Card -->
+                    <div class="card" style="padding: 1.5rem; display: flex; flex-direction: column; justify-content: center;">
+                        <h3 style="margin-bottom: 1rem; color: #f8fafc;">🔔 Set Smart FX Alert</h3>
+                        <p style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 1rem;">Notify me when 1 USD crosses this INR rate:</p>
+                        <div style="display: flex; gap: 1rem;">
+                            <input type="number" id="alertTarget" placeholder="e.g. 85.00" style="flex: 1; padding: 0.8rem; background: #0f172a; border: 1px solid #334155; color: white; border-radius: 8px; outline: none;">
+                            <button class="btn-primary" id="setAlertBtn" style="width: auto; padding: 0 1.5rem;">Set Alert</button>
+                        </div>
+                        <div id="activeAlerts" style="margin-top: 1rem; color: #10b981; font-size: 0.9rem;"></div>
+                    </div>
+
+                </div>
+
+                <!-- Forecast Results (Graph & Predictions) -->
+                <div id="forecastResults" style="display: none;">
+                    <div class="card" style="margin-bottom: 1.5rem; background: #0f172a;">
+                        <canvas id="forecastChart" height="80"></canvas>
+                    </div>
+                    <div class="ai-recommendation" style="margin-bottom: 1.5rem;">
+                        <div class="ai-header"><span class="sparkle">✨</span> AI Market Insight</div>
+                        <p id="forecastAiText"></p>
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;">
+                        <div class="card" style="padding: 1rem; text-align: center; background: #1e293b;">
+                            <p style="color: #94a3b8; font-size: 0.85rem;">Current Rate</p>
+                            <h3 id="fcCurrent" style="color: #f8fafc; font-size: 1.5rem;">-</h3>
+                        </div>
+                        <div class="card" style="padding: 1rem; text-align: center; background: #1e293b;">
+                            <p style="color: #94a3b8; font-size: 0.85rem;">Day +1 Prediction</p>
+                            <h3 id="fcDay1" style="color: #38bdf8; font-size: 1.5rem;">-</h3>
+                        </div>
+                        <div class="card" style="padding: 1rem; text-align: center; background: #1e293b;">
+                            <p style="color: #94a3b8; font-size: 0.85rem;">Day +2 Prediction</p>
+                            <h3 id="fcDay2" style="color: #38bdf8; font-size: 1.5rem;">-</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+                        <!-- ================= AI AGENT SECTION ================= -->
+                        <!-- ================= AI AGENT SECTION ================= -->
+            <div id="agent-section" style="display: none;">
+                <header>
+                    <h1>Global Transfer Optimizer</h1>
+                    <p>Compare multiple platforms to get the best transfer rate.</p>
+                </header>
+
+                <!-- Input Form (AI AGENT WALA) -->
+                <div class="card" style="margin-bottom: 1.5rem; padding: 1.5rem;">
+                    <div style="display: flex; flex-direction: row; gap: 1rem; align-items: center; justify-content: center; flex-wrap: wrap;">
+                        
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <label style="color: #94a3b8; font-weight: 600; margin: 0;">From:</label>
+                            <select id="fromCurrency" style="padding: 0.8rem; background: #0f172a; border: 1px solid #334155; color: white; border-radius: 8px; outline: none; width: 120px;">
+                                <option value="USD">USD</option>
+                                <option value="EUR">EUR</option>
+                                <option value="GBP">GBP</option>
+                                <option value="INR">INR</option>
+                            </select>
+                        </div>
+
+                        <div style="position: relative; width: 200px;">
+                            <span style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: #64748b; font-weight: 600;">#</span>
+                            <input type="number" id="transferAmount" value="1500" style="width: 100%; padding: 0.8rem 1rem 0.8rem 2.5rem; background: #0f172a; border: 1px solid #334155; color: white; border-radius: 8px; outline: none; font-size: 1rem;">
+                        </div>
+
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <label style="color: #94a3b8; font-weight: 600; margin: 0;">To:</label>
+                            <select id="toCurrency" style="padding: 0.8rem; background: #0f172a; border: 1px solid #334155; color: white; border-radius: 8px; outline: none; width: 120px;">
+                                <option value="INR">INR</option>
+                                <option value="USD">USD</option>
+                                <option value="EUR">EUR</option>
+                                <option value="GBP">GBP</option>
+                            </select>
+                        </div>
+
+                        <button class="btn-primary" id="comparePlatformsBtn" style="width: auto; padding: 0.8rem 2rem; white-space: nowrap; margin: 0;">Compare Platforms</button>
+                    </div>
+
+                <!-- Results Area -->
+                <div id="agentResultsArea" style="display: none;">
+                    <div id="agentAiSummary" class="ai-recommendation" style="margin-bottom: 1.5rem; display: none;">
+                        <div class="ai-header"><span class="sparkle">✨</span> AI Recommendation</div>
+                        <p id="agentAiText"></p>
+                    </div>
+                    
+                    <div id="platformsContainer" style="display: flex; flex-direction: column; gap: 1rem;">
+                        <!-- Platform cards will be injected here by JS -->
+                    </div>
+                </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- ================= FLOATING AI COPILOT ================= -->
+    <button id="chatToggleBtn" onclick="toggleChat()" style="position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #0ea5e9, #2563eb); color: white; border: none; box-shadow: 0 4px 15px rgba(14, 165, 233, 0.4); cursor: pointer; font-size: 1.5rem; display: flex; align-items: center; justify-content: center; z-index: 1000; transition: transform 0.3s;">
+        🤖
+    </button>
+
+    <div id="chatWidget" style="position: fixed; bottom: 100px; right: 30px; width: 380px; height: 500px; background: #1e293b; border: 1px solid #334155; border-radius: 16px; display: none; flex-direction: column; box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 1000; overflow: hidden;">
+        <div style="background: #0f172a; padding: 1rem; border-bottom: 1px solid #334155; display: flex; justify-content: space-between; align-items: center;">
+            <h3 style="color: #38bdf8; font-size: 1.1rem; margin: 0;">✨ RateMate Copilot</h3>
+            <span onclick="toggleChat()" style="cursor: pointer; color: #94a3b8; font-size: 1.2rem;">✖</span>
+        </div>
+        
+        <div id="chatHistory" style="flex: 1; padding: 1rem; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; background: #0f172a;">
+            <div class="chat-message ai-msg" style="color: #cbd5e1; background: #1e293b; padding: 10px; border-radius: 8px; align-self: flex-start; max-width: 85%; font-size: 0.9rem;">
+                Hello! I am your AI financial copilot. How can I help you today?
+            </div>
+        </div>
+
+        <div style="padding: 10px; background: #1e293b; border-top: 1px solid #334155; display: flex; gap: 8px; flex-wrap: wrap;">
+            <button class="chip" onclick="askCopilot('How much will I receive from $1000?')">Payout from $1000</button>
+            <button class="chip" onclick="askCopilot('Should I withdraw today?')">Withdraw today?</button>
+            <button class="chip" onclick="askCopilot('How much should I charge to receive ₹50000?')">Charge for ₹50k</button>
+        </div>
+
+        <div style="padding: 1rem; background: #1e293b; display: flex; gap: 10px;">
+            <input type="text" id="chatInput" placeholder="Ask your Copilot..." style="flex: 1; padding: 0.8rem; background: #0f172a; border: 1px solid #334155; color: white; border-radius: 8px; outline: none; font-size: 0.9rem;">
+            <button class="btn-primary" id="chatBtn" style="width: auto; padding: 0 1rem; font-size: 0.9rem;">Send</button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/ag-grid-community@31.0.0/dist/ag-grid-community.min.js"></script>
+    <script src="/static/script.js"></script>
+</body>
+</html>

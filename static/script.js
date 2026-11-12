@@ -737,7 +737,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const liveAlertRate = document.getElementById('liveAlertRate');
 
     // Current Rate fetch karke dikhao jab page load ho
-    async function updateLiveAlertRate() {
+        async function updateLiveAlertRate() {
         if (!alertCurrency || !liveAlertRate) return;
         const curr = alertCurrency.value;
         
@@ -745,7 +745,13 @@ document.addEventListener("DOMContentLoaded", () => {
             const response = await fetch(`/api/forecast?from_currency=USD&to_currency=${curr}`);
             const data = await response.json();
             if (!data.error) {
-                liveAlertRate.innerText = `1 USD = ${data.current_rate} ${curr}`;
+                // Agar currency INR hai, toh "1 USD = X INR" dikhao
+                // Warna "1 USD = X (Currency)" dikhao
+                if (curr === "INR") {
+                    liveAlertRate.innerText = `1 USD = ${data.current_rate} INR`;
+                } else {
+                    liveAlertRate.innerText = `1 USD = ${data.current_rate} ${curr}`;
+                }
             }
         } catch (e) {
             liveAlertRate.innerText = "Error loading rate";

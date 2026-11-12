@@ -675,36 +675,85 @@ document.addEventListener("DOMContentLoaded", () => {
     // 16. Smart FX Alerts Logic
    
     const setAlertBtn = document.getElementById('setAlertBtn');
+    const alertCurrency = document.getElementById('alertCurrency');
+    const liveAlertRate = document.getElementById('liveAlertRate');
+
+    // Current Rate fetch karke dikhao jab page load ho
+    async function updateLiveAlertRate() {
+        if (!alertCurrency || !liveAlertRate) return;
+        const curr = alertCurrency.value;
+        
+        try {
+            const response = await fetch(`/api/forecast?from_currency=USD&to_currency=${curr}`);
+            const data = await response.json();
+            if (!data.error) {
+                liveAlertRate.innerText = `1 USD = ${data.current_rate} ${curr}`;
+            }
+        } catch (e) {
+            liveAlertRate.innerText = "Error loading rate";
+        }
+    }
+    
+    if (alertCurrency) {
+        alertCurrency.addEventListener('change', updateLiveAlertRate);
+        updateLiveAlertRate(); // Initial load
+    }
+
+    // AI Suggest Button
+    const suggestRateBtn = document.getElementById('suggestRateBtn');
+    if (suggestRateBtn) {
+        suggestRateBtn.addEventListener('click', async () => {
+            alert("AI Suggest Button Clicked!")
+            suggestRateBtn.innerText = "...";
+            try {
+                const curr = alertCurrency.value;
+                const response = await fetch(`/api/forecast?from_currency=USD&to_currency=${curr}`);
+                const data = await response.json();
+                console.log("Forecast Data:", data);
+                
+                if (!data.error && data.predictions.length > 0) {
+                    // 3 din  prediction 
+                    let suggestionText = "AI Predictions:\n";
+                    data.predictions.forEach(p => {
+                        suggestionText += `${p.day}: ${p.predicted_rate.toFixed(2)} ${curr}\n`;
+                    });
+                    
+                    // best rate suggest karo 
+                    const bestRate = Math.max(...data.predictions.map(p => p.predicted_rate));
+                    document.getElementById('alertTarget').value = bestRate.toFixed(2);
+                    
+                    alert(suggestionText + `\nSuggested Target: ${bestRate.toFixed(2)} ${curr}`);
+                }
+            } catch (e) {
+                alert("Could not fetch AI suggestion.");
+            } finally {
+                suggestRateBtn.innerText = "✨ AI Suggest";
+            }
+        });
+    }
+
     if (setAlertBtn) {
         setAlertBtn.addEventListener('click', async () => {
             const target = document.getElementById('alertTarget').value;
+            const currency = document.getElementById('alertCurrency').value;
+            const condition = document.getElementById('alertCondition').value;
+            
             if (!target) return;
 
             const formData = new FormData();
             formData.append('target_rate', target);
-            formData.append('currency', 'INR');
+            formData.append('currency', currency);
+            formData.append('condition', condition);
 
             const response = await fetch('/api/alerts/set', { method: 'POST', body: formData });
             const data = await response.json();
             
             if (data.success) {
-                document.getElementById('activeAlerts').innerText = `✅ Alert set! We will notify you if USD hits ₹${target}.`;
+                document.getElementById('activeAlerts').innerText = `✅ Alert set! We will notify you if USD goes ${condition} ${target} ${currency}.`;
                 document.getElementById('alertTarget').value = '';
             }
         });
-    }
-
-    setInterval(async () => {
-        try {
-            const response = await fetch('/api/alerts/check');
-            const data = await response.json();
-            if (data.triggered.length > 0) {
-                data.triggered.forEach(msg => alert(msg)); 
-            }
-        } catch (e) {
-            console.log("Alert check failed");
-        }
-    }, 30000); 
+    } 
 
     
     // 17. Dynamic Invoice Currency Symbol

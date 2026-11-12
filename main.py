@@ -446,22 +446,23 @@ async def get_fx_forecast(from_currency: str = "USD", to_currency: str = "INR"):
         return {"error": str(e)}
 
 # In-memory alerts storage 
+# In-memory alerts storage
 USER_ALERTS = []
 
 @app.post("/api/alerts/set")
-async def set_alert(target_rate: float = Form(...), currency: str = Form("INR")):
-    USER_ALERTS.append({"currency": currency, "target": target_rate})
-    return {"success": True, "message": f"Alert set for 1 USD >= {target_rate} {currency}"}
+async def set_alert(target_rate: float = Form(...), currency: str = Form("INR"), condition: str = Form("above")):
+    USER_ALERTS.append({"currency": currency, "target": target_rate, "condition": condition})
+    return {"success": True, "message": f"Alert set for {condition} {target_rate} {currency}"}
 
 @app.get("/api/alerts/check")
 async def check_alerts():
     triggered = []
-    current_rate = get_live_fx_rate("INR") # Default check 
-    
     for alert in USER_ALERTS:
-        if alert["currency"] == "INR" and current_rate >= alert["target"]:
-            triggered.append(f"🚀 Target Hit! USD/INR is now {current_rate} (Target: {alert['target']})")
-            
+        current_rate = get_live_fx_rate(alert["currency"])
+        if alert["condition"] == "above" and current_rate >= alert["target"]:
+            triggered.append(f"🚀 Target Hit! Current rate is now {current_rate} {alert['currency']} (Target: Above {alert['target']})")
+        elif alert["condition"] == "below" and current_rate <= alert["target"]:
+            triggered.append(f"📉 Target Hit! Current rate is now {current_rate} {alert['currency']} (Target: Below {alert['target']})")
     return {"triggered": triggered}
 
 

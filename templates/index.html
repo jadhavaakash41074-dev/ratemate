@@ -348,18 +348,32 @@
                         <button class="btn-primary" id="forecastBtn" style="width: 100%; padding: 0.8rem;">Run Forecast</button>
                     </div>
 
-                    <!-- Smart Alert Card -->
+                <!-- Smart Alert Card -->
                     <div class="card" style="padding: 1.5rem; display: flex; flex-direction: column; justify-content: center;">
                         <h3 style="margin-bottom: 1rem; color: #f8fafc;">🔔 Set Smart FX Alert</h3>
-                        <p style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 1rem;">Notify me when 1 USD crosses this INR rate:</p>
-                        <div style="display: flex; gap: 1rem;">
-                            <input type="number" id="alertTarget" placeholder="e.g. 85.00" style="flex: 1; padding: 0.8rem; background: #0f172a; border: 1px solid #334155; color: white; border-radius: 8px; outline: none;">
-                            <button class="btn-primary" id="setAlertBtn" style="width: auto; padding: 0 1.5rem;">Set Alert</button>
+                        <p style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 0.5rem;">Current Rate: <strong id="liveAlertRate" style="color: #38bdf8;">Loading...</strong></p>
+                        
+                        <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
+                            <select id="alertCurrency" style="flex: 1; padding: 0.8rem; background: #0f172a; border: 1px solid #334155; color: white; border-radius: 8px; outline: none;">
+                                <option value="INR">INR</option>
+                                <option value="EUR">EUR</option>
+                                <option value="GBP">GBP</option>
+                                <option value="AUD">AUD</option>
+                            </select>
+                            <select id="alertCondition" style="width: 120px; padding: 0.8rem; background: #0f172a; border: 1px solid #334155; color: white; border-radius: 8px; outline: none;">
+                                <option value="above">Above</option>
+                                <option value="below">Below</option>
+                            </select>
                         </div>
+
+                        <div style="display: flex; gap: 0.5rem;">
+                            <input type="number" id="alertTarget" placeholder="e.g. 85.00" style="flex: 1; padding: 0.8rem; background: #0f172a; border: 1px solid #334155; color: white; border-radius: 8px; outline: none;">
+                            <button class="btn-primary" id="suggestRateBtn" style="width: auto; padding: 0 1rem; background: #8b5cf6; border: none;">✨ AI Suggest</button>
+                        </div>
+                        
+                        <button class="btn-primary" id="setAlertBtn" style="width: 100%; margin-top: 1rem; padding: 0.8rem;">Set Alert</button>
                         <div id="activeAlerts" style="margin-top: 1rem; color: #10b981; font-size: 0.9rem;"></div>
                     </div>
-
-                </div>
 
                 <!-- Forecast Results (Graph & Predictions) -->
                 <div id="forecastResults" style="display: none;">

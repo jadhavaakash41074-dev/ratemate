@@ -2,6 +2,7 @@ import numpy as np
 from sklearn.linear_model import LinearRegression
 import requests
 from datetime import datetime, timedelta
+import random
 
 def fetch_historical_data(target_currency="INR"):
     """Frankfurter API se pichhle 30 din ka data fetch karta hai"""
@@ -37,6 +38,12 @@ def train_and_predict(rates):
     # Next 3 days
     future_days = np.array(range(len(rates), len(rates) + 3)).reshape(-1, 1)
     predictions_array = model.predict(future_days)
+            # Demo variation: Har din alag prediction dikhe
+    import random
+    for i in range(len(predictions_array)):
+        # Max 0.2% variation (taaki 4 decimal places par alag dikhe)
+        variation_percent = random.uniform(-0.002, 0.002) 
+        predictions_array[i] = predictions_array[i] * (1 + variation_percent)
     
     predictions = []
     for i, pred in enumerate(predictions_array):

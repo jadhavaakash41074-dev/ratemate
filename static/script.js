@@ -22,24 +22,41 @@ document.addEventListener("DOMContentLoaded", () => {
     
     // 2. AG Grid Initialization (Invoices Tab)
 
-    const invoicesGridOptions = {
+        const invoicesGridOptions = {
         columnDefs: [
             { field: "id", headerName: "Invoice ID" },
             { field: "date", headerName: "Date" },
-            { field: "amount", headerName: "Amount", valueFormatter: params => params.value },
+            { 
+                field: "amount", 
+                headerName: "Amount", 
+                valueFormatter: params => {
+                    if (!params.data) return params.value;
+                    
+                    // Amount ke liye Invoice Currency (from_currency) ka symbol
+                    let sym = "";
+                    if (params.data.currency === 'EUR') sym = "€";
+                    if (params.data.currency === 'GBP') sym = "£";
+                    if (params.data.currency === 'AUD') sym = "A$";
+                    if (params.data.currency === 'USD') sym = "$";
+                    if (params.data.currency === 'INR') sym = "₹";
+                    
+                    return `${sym}${params.value}`;
+                }
+            },
             { field: "currency", headerName: "Currency" },
-                        { 
+                { 
                 field: "expected_net", 
                 headerName: "Expected Net", 
                 valueFormatter: params => {
                     if (!params.data) return '₹' + (params.value ? params.value.toFixed(2) : '0.00');
                     
-                    // Row ke currency column se symbol nikaalo
-                    let sym = "₹";
-                    if (params.data.currency === 'EUR') sym = "€";
-                    if (params.data.currency === 'GBP') sym = "£";
-                    if (params.data.currency === 'AUD') sym = "A$";
-                    if (params.data.currency === 'USD') sym = "$";
+                    // Expected Net ka symbol Target Currency ke hisaab se
+                    let sym = "₹"; // Default INR
+                    if (params.data.target_currency === 'EUR') sym = "€";
+                    if (params.data.target_currency === 'GBP') sym = "£";
+                    if (params.data.target_currency === 'AUD') sym = "A$";
+                    if (params.data.target_currency === 'USD') sym = "$";
+                    if (params.data.target_currency === 'INR') sym = "₹";
                     
                     return `${sym}${params.value ? params.value.toFixed(2) : '0.00'}`;
                 }
@@ -54,7 +71,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (invoicesGridDiv) {
         new agGrid.Grid(invoicesGridDiv, invoicesGridOptions);
     }
-
     // 3. Tab Switching Logic
     
     window.switchTab = function(tabName) {
@@ -153,7 +169,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // 5. Display Results & Update Simulator
 
-    function displayResults(data, currency) {
+        function displayResults(data, currency) {
+        // 1. Invoice Currency (From) ka symbol
         let invoiceSymbol = "$";
         let fromCurr = data.from_currency || "USD"; 
         
@@ -162,12 +179,14 @@ document.addEventListener("DOMContentLoaded", () => {
         else if (fromCurr === 'GBP') invoiceSymbol = "£";
         else if (fromCurr === 'AUD') invoiceSymbol = "A$";
 
+        // 2. Target Currency (To) ka symbol
         let targetSymbol = "₹";
-        if(currency === 'EUR') targetSymbol = "€";
-        if(currency === 'GBP') targetSymbol = "£";
-        if(currency === 'AUD') targetSymbol = "A$";
-        if(currency === 'USD') targetSymbol = "$";
+        if (currency === 'EUR') targetSymbol = "€";
+        if (currency === 'GBP') targetSymbol = "£";
+        if (currency === 'AUD') targetSymbol = "A$";
+        if (currency === 'USD') targetSymbol = "$";
 
+        // 3. Payout Details Update karo
         document.getElementById('netLocal').innerText = `${targetSymbol}${data.net_local.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
         document.getElementById('netUsd').innerText = `(${invoiceSymbol}${data.net_usd.toLocaleString()} ${fromCurr})`;
         
@@ -176,6 +195,7 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById('fxMarkup').innerText = `-${invoiceSymbol}${data.fx_markup_usd}`;
         document.getElementById('fxRate').innerText = `1 ${fromCurr} = ${data.fx_rate} ${currency}`;
 
+        // 4. AI Recommendation Update karo
         let aiText = "";
         let aiBox = document.getElementById('aiBox');
         
@@ -191,6 +211,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         document.getElementById('aiText').innerText = aiText;
 
+        // 5. Simulator ke liye data save karo
         window.currentBasePayout = data.net_local;
         window.currentCurrencySymbol = targetSymbol; 
         window.currentFxRate = data.fx_rate;
@@ -200,7 +221,20 @@ document.addEventListener("DOMContentLoaded", () => {
             document.getElementById('rateChangeValue').innerText = "0%";
             updateSimulator(0);
         }
-    }
+
+        // 6. Dashboard Analytics Update karo (Agar data.analytics aaya hai toh)
+        if (data.analytics) {
+            const a = data.analytics;
+            
+            // Check karo ki boxes exist karte hain ya nahi (kyunki humne HTML se hata diye hain)
+            if (document.getElementById('statInvoices')) {
+                document.getElementById('statInvoices').innerText = a.total_invoices;
+                const sym = "₹"; 
+                document.getElementById('statNet').innerText = `${sym}${a.total_net_local.toLocaleString('en-IN')}`;
+                document.getElementById('statFees').innerText = `${sym}${a.total_fees_local.toLocaleString('en-IN')}`;
+            }
+        }
+    } // <--- Function yahan band hota hai
 
     // 6. Fetch All Invoices (For the Invoices Tab)
 
@@ -220,6 +254,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         date: new Date(inv.created_at).toLocaleDateString(),
                         amount: inv.amount,
                         currency: inv.currency,
+                        target_currency: inv.target_currency,
                         expected_net: inv.expected_net,
                         status: inv.status || "Pending"
                     }));
@@ -233,8 +268,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // 7. Smart Savings Insight & Analytics (UPDATED)
     
-
-        async function fetchAnalyticsAndSavings() {
+            async function fetchAnalyticsAndSavings() {
         try {
             const token = localStorage.getItem('rateMateToken');
             const response = await fetch('/api/analytics', {
@@ -242,19 +276,43 @@ document.addEventListener("DOMContentLoaded", () => {
             });
             const data = await response.json();
             
-            if (!data.error && data.total_invoices !== undefined) {
-                document.getElementById('statInvoices').innerText = data.total_invoices;
-                document.getElementById('statNet').innerText = `₹${data.total_net_local.toLocaleString('en-IN')}`;
-                document.getElementById('statFees').innerText = `₹${data.total_fees_local.toLocaleString('en-IN')}`;
-                // ...
+            if (!data.error) {
+                // 1. Main Dashboard Cards Update karo (Agar exist karte hain)
+                if (document.getElementById('statInvoices')) {
+                    document.getElementById('statInvoices').innerText = data.total_invoices;
+                    const sym = "₹"; 
+                    document.getElementById('statNet').innerText = `${sym}${data.total_net_local.toLocaleString('en-IN')}`;
+                    document.getElementById('statFees').innerText = `${sym}${data.total_fees_local.toLocaleString('en-IN')}`;
+                }
+
+                // 2. Currency Breakdown Table Update karo
+                if (data.currency_data) {
+                    document.getElementById('currencyBreakdown').style.display = 'block';
+                    const tbody = document.getElementById('currencyBreakdownBody');
+                    tbody.innerHTML = '';
+                    
+                    const symbols = { "USD": "$", "EUR": "€", "GBP": "£", "AUD": "A$", "INR": "₹" };
+                    
+                    for (const [curr, info] of Object.entries(data.currency_data)) {
+                        const sym = symbols[curr] || "";
+                        const row = `
+                            <tr style="border-bottom: 1px solid #1e293b;">
+                                <td style="padding: 0.5rem; font-weight: 600;">${curr}</td>
+                                <td style="padding: 0.5rem; text-align: right;">${sym}${info.gross.toFixed(2)}</td>
+                                <td style="padding: 0.5rem; text-align: right; color: #10b981;">${sym}${info.net.toFixed(2)}</td>
+                                <td style="padding: 0.5rem; text-align: right; color: #ef4444;">${sym}${info.fees.toFixed(2)}</td>
+                            </tr>
+                        `;
+                        tbody.innerHTML += row;
+                    }
+                }
             }
         } catch (error) {
             console.error("Analytics fetch failed", error);
         }
     }
-    fetchAnalyticsAndSavings();
-
     
+    fetchAnalyticsAndSavings(); // <--- YEH LINE ZAROORI HAI
     // 8. Reverse Calculator Logic (Dynamic Currency)
 
     const reverseCalcBtn = document.getElementById('reverseCalcBtn');

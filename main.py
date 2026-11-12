@@ -68,34 +68,26 @@ def get_paypal_token():
     return None
 
 def get_live_fx_rate(target_currency="INR"):
+    # Agar target currency USD hai toh direct 1 return karo
     if target_currency == "USD":
         return 1.0
         
+    # Fallback rates (Agar API fail ho jaye)
+    fallback_rates = {"INR": 83.50, "EUR": 0.92, "GBP": 0.79, "AUD": 1.52}
+    
     try:
-        app_id = os.getenv("OPEN_EXCHANGE_APP_ID")
-        if not app_id:
-            raise Exception("Open Exchange App ID missing")
-            
-        # Open Exchange Rates in  USD base  rate fetch 
-        url = f"https://openexchangerates.org/api/latest.json?app_id={app_id}"
+        url = f"https://api.frankfurter.app/latest?from=USD&to={target_currency}"
         response = requests.get(url, timeout=5)
-        
         if response.status_code == 200:
             data = response.json()
-            rates = data.get("rates", {})
-            if target_currency in rates:
-                market_rate = rates[target_currency]
-                # PayPal markup 4% kaat do
-                paypal_rate = market_rate * (1 - 0.04)
-                return round(paypal_rate, 4)
-                    
+            market_rate = data["rates"][target_currency]
+            paypal_rate = market_rate * (1 - 0.04)
+            return round(paypal_rate, 2)
     except Exception as e:
-        print(f"Open Exchange Error: {e}")
+        print(f"Frankfurter API Error: {e}")
         
-    # Fallback (agar API fail ho)
-    fallback_rates = {"INR": 83.50, "EUR": 0.92, "GBP": 0.79, "AUD": 1.52, "USD": 1.0}
+    # Agar API fail ho jaye toh fallback rate use karo
     return fallback_rates.get(target_currency, 1.0)
-
 # ROUTES
 
 @app.get("/", response_class=HTMLResponse)
@@ -119,7 +111,6 @@ async def predict_payout(
     except:
         raise HTTPException(status_code=401, detail="Invalid or expired token")
 
-    
     usd_to_inr = get_live_fx_rate("INR")
     usd_to_eur = get_live_fx_rate("EUR")
     usd_to_gbp = get_live_fx_rate("GBP")
@@ -148,24 +139,41 @@ async def predict_payout(
 
     # 2. Supabase to save this data with email 
     try:
+        print(f"Saving to DB: amount={amount}, from={from_currency}, target={target_currency}")
+        
         supabase.table("invoices").insert({
-            "user_id": user_email, # Ab user_id mein email jayega
+            "user_id": user_email,
             "amount": amount,
-            "currency": from_currency,
+            "currency": from_currency,          
+            "target_currency": target_currency, 
             "expected_net": result["net_local"]
         }).execute()
+        print(f"Inserted data: {supabase.table('invoices').select('*').eq('user_id', user_email).order('created_at', desc=True).limit(1).execute().data}")
     except Exception as e:
         print(f"Supabase insert error: {e}")
 
-    return result
+    # 3. Naya total calculate karo analytics ke liye (Dashboard update ke liye)
+    try:
+        response = supabase.table("invoices").select("*").eq("user_id", user_email).execute()
+        invoices = response.data
+        total_gross = sum([inv['amount'] for inv in invoices])
+        total_net = sum([inv['expected_net'] for inv in invoices if inv['expected_net']])
+        total_inv = len(invoices)
+        
+        user_curr = invoices[0]['target_currency'] if invoices and invoices[0].get('target_currency') else "INR"
+        rate = get_live_fx_rate(user_curr)
+        total_fees = ((total_gross * 0.044) + ((total_gross * (1 - 0.044)) * 0.04)) * rate
+        
+        result["analytics"] = {
+            "total_invoices": total_inv,
+            "total_net_local": round(total_net, 2),
+            "total_fees_local": round(total_fees, 2),
+            "user_currency": user_curr
+        }
+    except Exception as e:
+        print(f"Analytics calc error: {e}")
 
-@app.get("/api/leakage")
-async def get_leakage():
-    demo_total_usd = 10000.0
-    rate = get_live_fx_rate("INR")
-    result = calculate_fee_leakage(demo_total_usd, rate)
     return result
-
 @app.get("/api/invoices")
 async def get_invoices(current_user: str = Depends(get_current_user)):
     try:
@@ -483,7 +491,6 @@ async def signup(user: UserAuth):
 @app.post("/api/auth/login")
 async def login(user: UserAuth):
     try:
-        # Supabase  login 
         response = supabase.auth.sign_in_with_password({
             "email": user.email,
             "password": user.password
@@ -495,6 +502,7 @@ async def login(user: UserAuth):
         }
     except Exception as e:
         return {"success": False, "error": "Invalid email or password"}
+    
 
 
 @app.get("/api/analytics")
@@ -503,24 +511,52 @@ async def get_analytics(current_user: str = Depends(get_current_user)):
         response = supabase.table("invoices").select("*").eq("user_id", current_user).execute()
         invoices = response.data
         
-        total_gross_usd = sum([inv['amount'] for inv in invoices]) if invoices else 0
-        total_net_local = sum([inv['expected_net'] for inv in invoices if inv['expected_net']]) if invoices else 0
-        total_invoices = len(invoices)
+        total_invoices = len(invoices) if invoices else 0
+        currency_data = {
+            "USD": {"gross": 0.0, "net": 0.0, "fees": 0.0},
+            "EUR": {"gross": 0.0, "net": 0.0, "fees": 0.0},
+            "GBP": {"gross": 0.0, "net": 0.0, "fees": 0.0},
+            "AUD": {"gross": 0.0, "net": 0.0, "fees": 0.0},
+            "INR": {"gross": 0.0, "net": 0.0, "fees": 0.0}
+        }
         
-        total_fees = (total_gross_usd * 0.044) + ((total_gross_usd * (1 - 0.044)) * 0.04)
-        rate = get_live_fx_rate("INR")
-        total_fees_local = total_fees * rate
+        total_gross_inr = 0.0
+        total_net_inr = 0.0
+        total_fees_inr = 0.0
+        
+        usd_to_inr = get_live_fx_rate("INR")
+        usd_rates = {"INR": usd_to_inr, "EUR": get_live_fx_rate("EUR"), "GBP": get_live_fx_rate("GBP"), "AUD": get_live_fx_rate("AUD"), "USD": 1.0}
+        
+        for inv in invoices:
+            target_curr = inv.get('target_currency', 'INR') or 'INR'
+            amount = inv.get('amount', 0)
+            net = inv.get('expected_net', 0)
+            
+            # Fees calculate karo target currency mein
+            rate_to_inr = usd_to_inr / usd_rates[target_curr] if target_curr != "INR" else 1.0
+            gross_in_target = amount * (usd_rates[target_curr] / usd_rates[inv.get('currency', 'USD')])
+            fees = gross_in_target - net
+            
+            if target_curr in currency_data:
+                currency_data[target_curr]["gross"] += gross_in_target
+                currency_data[target_curr]["net"] += net
+                currency_data[target_curr]["fees"] += fees
+            
+            total_gross_inr += gross_in_target * rate_to_inr
+            total_net_inr += net * rate_to_inr
+            total_fees_inr += fees * rate_to_inr
         
         return {
             "total_invoices": total_invoices,
-            "total_gross_usd": round(total_gross_usd, 2),
-            "total_net_local": round(total_net_local, 2),
-            "total_fees_local": round(total_fees_local, 2)
+            "total_net_local": round(total_net_inr, 2),
+            "total_fees_local": round(total_fees_inr, 2),
+            "currency_data": currency_data, # <--- YEH NAYA DATA HAI
+            "user_currency": "INR"
         }
     except Exception as e:
         print(f"ANALYTICS ERROR: {e}")
-        return {"total_invoices": 0, "total_net_local": 0, "total_fees_local": 0}
-
+        return {"total_invoices": 0, "total_net_local": 0, "total_fees_local": 0, "currency_data": {}, "user_currency": "INR"}
+    
 @app.post("/api/chat")
 async def chat_with_agent(message: str = Form(...)):
     try:

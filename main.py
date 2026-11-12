@@ -32,7 +32,7 @@ class UserAuth(BaseModel):
 # .env load karo
 load_dotenv()
 
-# Hamare banaye hue local modules import karo
+# importing the local module 
 from database import supabase, init_db
 from fee_engine import (
     calculate_net_amount, 
@@ -43,18 +43,18 @@ from fee_engine import (
     get_smart_chat_response
 )
 
-# Server start hone se pehle DB check karo
+# Server start we first check Data Base
 init_db()
 
 app = FastAPI()
 
-# Static aur Templates folder connect karna
+# Static and templates folder connect first 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
-# ==========================================
+
 # HELPER FUNCTIONS
-# ==========================================
+
 def get_paypal_token():
     auth = (os.getenv("PAYPAL_CLIENT_ID"), os.getenv("PAYPAL_SECRET"))
     res = requests.post(
@@ -76,7 +76,7 @@ def get_live_fx_rate(target_currency="INR"):
         if not app_id:
             raise Exception("Open Exchange App ID missing")
             
-        # Open Exchange Rates se USD base par rate fetch karo
+        # Open Exchange Rates in  USD base  rate fetch 
         url = f"https://openexchangerates.org/api/latest.json?app_id={app_id}"
         response = requests.get(url, timeout=5)
         
@@ -96,9 +96,7 @@ def get_live_fx_rate(target_currency="INR"):
     fallback_rates = {"INR": 83.50, "EUR": 0.92, "GBP": 0.79, "AUD": 1.52, "USD": 1.0}
     return fallback_rates.get(target_currency, 1.0)
 
-# ==========================================
 # ROUTES
-# ==========================================
 
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request):
@@ -121,11 +119,11 @@ async def predict_payout(
     except:
         raise HTTPException(status_code=401, detail="Invalid or expired token")
 
-    # ... (Rates fetch karne ka aur calculation ka code jo pehle tha, woh same rahega) ...
+    
     usd_to_inr = get_live_fx_rate("INR")
     usd_to_eur = get_live_fx_rate("EUR")
     usd_to_gbp = get_live_fx_rate("GBP")
-    usd_to_aud = get_live_fx_rate("AUD") # Yeh line add karo
+    usd_to_aud = get_live_fx_rate("AUD") 
     usd_rates = {"INR": usd_to_inr, "EUR": usd_to_eur, "GBP": usd_to_gbp, "AUD": usd_to_aud, "USD": 1.0}
     
     if from_currency == target_currency:
@@ -148,7 +146,7 @@ async def predict_payout(
     result["from_currency"] = from_currency
     result["ai_advice"] = get_ai_recommendation(result["net_local"], signal, diff, target_currency)
 
-    # 2. Supabase mein save karo (User ke email ke saath)
+    # 2. Supabase to save this data with email 
     try:
         supabase.table("invoices").insert({
             "user_id": user_email, # Ab user_id mein email jayega
@@ -171,7 +169,7 @@ async def get_leakage():
 @app.get("/api/invoices")
 async def get_invoices(current_user: str = Depends(get_current_user)):
     try:
-        # Sirf current user ke invoices fetch karo
+        # can current user invoices fetch
         response = supabase.table("invoices").select("*").eq("user_id", current_user).order("created_at", desc=True).execute()
         return {"invoices": response.data}
     except Exception as e:
@@ -181,7 +179,7 @@ async def get_invoices(current_user: str = Depends(get_current_user)):
 @app.post("/api/reverse-calculate")
 async def reverse_calculate(desired_amount: float = Form(...), target_currency: str = Form("INR"), user_currency: str = Form("INR")):
     try:
-        # 1. Live rates fetch karo
+        # 1. Fetch the live rates
         usd_to_inr = get_live_fx_rate("INR")
         usd_to_eur = get_live_fx_rate("EUR")
         usd_to_gbp = get_live_fx_rate("GBP")
@@ -196,10 +194,10 @@ async def reverse_calculate(desired_amount: float = Form(...), target_currency: 
         else:
             desired_usd = desired_amount
 
-        # 3. Required USD invoice calculate karo (PayPal fees ke saath)
+        # 3. Required USD invoice calculate 
         required_usd = calculate_required_invoice(desired_usd, 1.0)
 
-        # 4. Agar user ke paas INR hai, toh usko INR mein convert karo (Optional info)
+        # 4. if user can INR currency in wallet so it can conevert  in INR 
         required_in_user_currency = required_usd
         if user_currency == "INR":
             required_in_user_currency = required_usd * usd_to_inr
@@ -222,12 +220,12 @@ async def reverse_calculate(desired_amount: float = Form(...), target_currency: 
 @app.post("/api/optimize-currency")
 async def optimize_currency(amount: float = Form(...), base_currency: str = Form("USD")):
     try:
-        # 1. USD base par live rates fetch karo
+        # 1. USD base  live rates fetch 
         usd_to_inr = get_live_fx_rate("INR")
         usd_to_eur = get_live_fx_rate("EUR")
         usd_to_gbp = get_live_fx_rate("GBP")
         
-        # 2. Base currency ko USD mein convert karo
+        # 2. Base currency  USD mein convert
         if base_currency == "USD":
             amount_in_usd = amount
         elif base_currency == "INR":
@@ -239,7 +237,7 @@ async def optimize_currency(amount: float = Form(...), base_currency: str = Form
         else:
             amount_in_usd = amount
             
-        # 3. Results dictionary banao
+        # 3. Results dictionary 
         results = {}
         
         # INR
@@ -312,7 +310,7 @@ async def agent_compare_transfer(amount: float = Form(...), from_currency: str =
         usd_to_inr = get_live_fx_rate("INR")
         usd_to_eur = get_live_fx_rate("EUR")
         usd_to_gbp = get_live_fx_rate("GBP")
-        usd_to_aud = get_live_fx_rate("AUD") # Naya add kiya
+        usd_to_aud = get_live_fx_rate("AUD") 
         
         usd_rates = {"INR": usd_to_inr, "EUR": usd_to_eur, "GBP": usd_to_gbp, "AUD": usd_to_aud, "USD": 1.0}
 
@@ -447,7 +445,7 @@ async def get_fx_forecast(from_currency: str = "USD", to_currency: str = "INR"):
         print(f"FORECAST ERROR: {e}")
         return {"error": str(e)}
 
-# In-memory alerts storage (Demo ke liye)
+# In-memory alerts storage 
 USER_ALERTS = []
 
 @app.post("/api/alerts/set")
@@ -458,7 +456,7 @@ async def set_alert(target_rate: float = Form(...), currency: str = Form("INR"))
 @app.get("/api/alerts/check")
 async def check_alerts():
     triggered = []
-    current_rate = get_live_fx_rate("INR") # Default check ke liye
+    current_rate = get_live_fx_rate("INR") # Default check 
     
     for alert in USER_ALERTS:
         if alert["currency"] == "INR" and current_rate >= alert["target"]:
@@ -467,14 +465,12 @@ async def check_alerts():
     return {"triggered": triggered}
 
 
-# ==========================================
 # AUTH ROUTES (Supabase Auth)
-# ==========================================
 
 @app.post("/api/auth/signup")
 async def signup(user: UserAuth):
     try:
-        # Supabase mein user banao
+        # Supabase  user creation
         response = supabase.auth.sign_up({
             "email": user.email,
             "password": user.password
@@ -486,7 +482,7 @@ async def signup(user: UserAuth):
 @app.post("/api/auth/login")
 async def login(user: UserAuth):
     try:
-        # Supabase se login karo
+        # Supabase  login 
         response = supabase.auth.sign_in_with_password({
             "email": user.email,
             "password": user.password
@@ -529,15 +525,15 @@ async def chat_with_agent(message: str = Form(...)):
     try:
         rate = get_live_fx_rate("INR")
         
-        # AI ko dene ke liye calculations
+        # AI (groq) we provide calculation
         calc_1000 = calculate_net_amount(1000, rate)
         net_1000 = calc_1000["net_local"]
         invoice_req_50k = calculate_required_invoice(50000, rate)
         
-        # AI se jawab mangwao
+        # AI responce fetch
         ai_reply = get_smart_chat_response(message, rate, net_1000, invoice_req_50k)
         
-        # Agar AI reply None hai, toh fallback message do
+        # If AI reply None , then we send fallback message
         if not ai_reply:
             ai_reply = "I'm having trouble analyzing the data right now. Please try again."
             

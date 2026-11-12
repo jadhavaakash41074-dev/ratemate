@@ -1,8 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
     
-    // ==========================================
     // 1. AG Grid Initialization (Dashboard)
-    // ==========================================
+    
     const dashboardGridOptions = {
         columnDefs: [
             { field: "date", headerName: "Date" },
@@ -20,9 +19,9 @@ document.addEventListener("DOMContentLoaded", () => {
         new agGrid.Grid(dashboardGridDiv, dashboardGridOptions);
     }
 
-    // ==========================================
+    
     // 2. AG Grid Initialization (Invoices Tab)
-    // ==========================================
+
     const invoicesGridOptions = {
         columnDefs: [
             { field: "id", headerName: "Invoice ID" },
@@ -56,9 +55,8 @@ document.addEventListener("DOMContentLoaded", () => {
         new agGrid.Grid(invoicesGridDiv, invoicesGridOptions);
     }
 
-    // ==========================================
     // 3. Tab Switching Logic
-    // ==========================================
+    
     window.switchTab = function(tabName) {
         document.getElementById('dashboard-section').style.display = 'none';
         document.getElementById('invoices-section').style.display = 'none';
@@ -95,9 +93,8 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     };
 
-    // ==========================================
     // 4. Form Submit Logic (Calculate Payout)
-    // ==========================================
+
     const form = document.getElementById('predictForm');
     const calcBtn = document.getElementById('calcBtn');
     const resultCard = document.getElementById('resultCard');
@@ -154,9 +151,8 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // ==========================================
     // 5. Display Results & Update Simulator
-    // ==========================================
+
     function displayResults(data, currency) {
         let invoiceSymbol = "$";
         let fromCurr = data.from_currency || "USD"; 
@@ -206,9 +202,8 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // ==========================================
     // 6. Fetch All Invoices (For the Invoices Tab)
-    // ==========================================
+
     async function fetchAllInvoices() {
         try {
             const token = localStorage.getItem('rateMateToken');
@@ -236,9 +231,9 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // ==========================================
     // 7. Smart Savings Insight & Analytics (UPDATED)
-    // ==========================================
+    
+
         async function fetchAnalyticsAndSavings() {
         try {
             const token = localStorage.getItem('rateMateToken');
@@ -259,15 +254,9 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     fetchAnalyticsAndSavings();
 
-    // ==========================================
-    // 8. Reverse Calculator Logic
-    // ==========================================
-        // ==========================================
-    // 8. Reverse Calculator Logic (UPDATED)
-    // ==========================================
-        // ==========================================
+    
     // 8. Reverse Calculator Logic (Dynamic Currency)
-    // ==========================================
+
     const reverseCalcBtn = document.getElementById('reverseCalcBtn');
     if (reverseCalcBtn) {
         reverseCalcBtn.addEventListener('click', async () => {
@@ -298,8 +287,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 
                 const data = await response.json();
                 
-                // Symbols select karo
-                let targetSym = "₹";
+                // Symbols selection                let targetSym = "₹";
                 if (targetCurrency === 'EUR') targetSym = "€";
                 if (targetCurrency === 'GBP') targetSym = "£";
                 if (targetCurrency === 'USD') targetSym = "$";
@@ -320,9 +308,9 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // ==========================================
+    
     // 9. What-If Simulator Logic
-    // ==========================================
+   
     const rateSlider = document.getElementById('rateSlider');
     const rateChangeValue = document.getElementById('rateChangeValue');
     const simulatedPayout = document.getElementById('simulatedPayout');
@@ -434,9 +422,8 @@ document.addEventListener("DOMContentLoaded", () => {
     // Initial Load
     fetchAllInvoices(); 
 
-    // ==========================================
     // 13. Multi-Currency Optimizer Logic
-    // ==========================================
+
     const optimizeBtn = document.getElementById('optimizeBtn');
     if (optimizeBtn) {
         optimizeBtn.addEventListener('click', async () => {
@@ -500,9 +487,8 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // ==========================================
     // 14. Global Transfer Optimizer Logic
-    // ==========================================
+
     const comparePlatformsBtn = document.getElementById('comparePlatformsBtn');
     if (comparePlatformsBtn) {
         comparePlatformsBtn.addEventListener('click', async () => {
@@ -597,9 +583,9 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // ==========================================
-    // 17. ML Forecasting Logic
-    // ==========================================
+
+    // 15. ML Forecasting Logic
+
     const forecastBtn = document.getElementById('forecastBtn');
     let myChart = null;
 
@@ -685,9 +671,9 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // ==========================================
-    // 18. Smart FX Alerts Logic
-    // ==========================================
+   
+    // 16. Smart FX Alerts Logic
+   
     const setAlertBtn = document.getElementById('setAlertBtn');
     if (setAlertBtn) {
         setAlertBtn.addEventListener('click', async () => {
@@ -720,9 +706,9 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }, 30000); 
 
-    // ==========================================
-    // 19. Dynamic Invoice Currency Symbol
-    // ==========================================
+    
+    // 17. Dynamic Invoice Currency Symbol
+ 
     const invoiceCurrencySelect = document.getElementById('invoiceCurrency');
     const invoiceSymbol = document.getElementById('invoiceSymbol');
 
@@ -736,9 +722,9 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // ==========================================
+   
     // 21. Auth Logic (Real Login)
-    // ==========================================
+  
     const authOverlay = document.getElementById('authOverlay');
     let authToken = localStorage.getItem('rateMateToken');
 
@@ -832,4 +818,4 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-}); // DOMContentLoaded yahan band hota hai
+}); 

@@ -15,8 +15,8 @@ if not SUPABASE_URL or not SUPABASE_KEY:
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 def init_db():
-    # Supabase mein tables pehle hi SQL Editor se ban chuke hain
-    # Bas check karte hain ki connection kaam kar raha hai
+    # Supabase tables are already created using SQl editor
+    # They was only check is wroking properly or not 
     try:
         response = supabase.table("users").select("id").limit(1).execute()
         print("✅ Supabase connected successfully!")

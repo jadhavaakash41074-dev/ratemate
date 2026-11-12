@@ -6,8 +6,8 @@ def calculate_net_amount(gross_usd, fx_rate):
     paypal_fee_usd = gross_usd * 0.044
     amount_after_paypal = gross_usd - paypal_fee_usd
     
-    # FX Markup pehle hi rate ke andar include hai (get_live_fx_rate mein 4% kaat diya hai)
-    # Isliye ab direct multiply karenge
+    # FX Markup already included in rates(get_live_fx_rate mein 4% kaat diya hai)
+    # so we that directly multiply 
     net_local = amount_after_paypal * fx_rate
     
     return {

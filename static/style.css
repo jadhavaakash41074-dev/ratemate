@@ -18,7 +18,7 @@ body {
     height: 100vh;
 }
 
-/* ================= Sidebar ================= */
+/* == Sidebar == */
 .sidebar {
     width: 260px;
     background-color: #1e293b;
@@ -89,7 +89,7 @@ header p {
 
 
 
-/* ================= Cards ================= */
+/* == Cards == */
 .card {
     background-color: #1e293b;
     border: 1px solid #334155;
@@ -170,7 +170,7 @@ header p {
     box-shadow: 0 6px 20px rgba(14, 165, 233, 0.6);
 }
 
-/* ================= Result Card ================= */
+/* = Result Card == */
 .net-amount {
     text-align: center;
     margin-bottom: 2rem;
@@ -230,7 +230,7 @@ header p {
     line-height: 1.5;
 }
 
-/* ================= AG Grid Table ================= */
+/* ==== AG Grid Table ==== */
 .table-card {
     padding: 1.5rem;
 }
@@ -263,10 +263,9 @@ header p {
     color: white;
 }
 
-/* Fix for the squeezed cards */
 
 
-/* ================= FINAL PERFECT LAYOUT ================= */
+/* ==== FINAL PERFECT LAYOUT ==== */
 .dashboard-grid {
     display: grid;
     grid-template-columns: 1fr 1fr 1.2fr; /* 3 barabar columns */
@@ -283,20 +282,20 @@ header p {
     flex-direction: column;
 }
 
-/* Inputs ko full width do */
+/* Inputs full width  */
 .input-group input, .input-group select {
     width: 100%;
     padding: 0.8rem !important;
     font-size: 0.95rem !important;
-    box-sizing: border-box; /* Taki input box se bahar na nikle */
+    box-sizing: border-box; 
 }
 
-/* Button ko full width do */
+/* Button full width  */
 .btn-primary {
     width: 100%;
     padding: 0.8rem !important;
     font-size: 0.95rem !important;
-    white-space: nowrap; /* Button text ko tootne se bachaye */
+    white-space: nowrap; 
 }
 
 /* Analytics Grid (Top 3 Cards) */
@@ -316,14 +315,14 @@ header p {
     text-align: center;
 }
 
-/* Mobile View Ke Liye (Agar screen chhoti ho) */
+/* Mobile View */
 @media (max-width: 1200px) {
     .dashboard-grid, .analytics-grid {
         grid-template-columns: 1fr;
     }
 }
 
-/* Result Cards ke liye premium spacing */
+/* Result Cards premium spacing */
 #platformsContainer .card {
     background-color: #1e293b;
     border-radius: 12px;

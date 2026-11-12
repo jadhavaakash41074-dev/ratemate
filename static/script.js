@@ -767,26 +767,29 @@ document.addEventListener("DOMContentLoaded", () => {
     const suggestRateBtn = document.getElementById('suggestRateBtn');
     if (suggestRateBtn) {
         suggestRateBtn.addEventListener('click', async () => {
-            alert("AI Suggest Button Clicked!")
             suggestRateBtn.innerText = "...";
             try {
-                const curr = alertCurrency.value;
-                const response = await fetch(`/api/forecast?from_currency=USD&to_currency=${curr}`);
+                // 1. Dropdown se From aur To dono currencies uthao
+                const fromCurr = document.getElementById('forecastFrom').value;
+                const toCurr = document.getElementById('forecastTo').value;
+                
+                // 2. API ko sahi currencies bhejo
+                const response = await fetch(`/api/forecast?from_currency=${fromCurr}&to_currency=${toCurr}`);
                 const data = await response.json();
                 console.log("Forecast Data:", data);
                 
                 if (!data.error && data.predictions.length > 0) {
-                    // 3 din  prediction 
+                    // 3. Prediction text banao
                     let suggestionText = "AI Predictions:\n";
                     data.predictions.forEach(p => {
-                        suggestionText += `${p.day}: ${p.predicted_rate.toFixed(2)} ${curr}\n`;
+                        suggestionText += `${p.day}: ${p.predicted_rate.toFixed(2)} ${toCurr}\n`;
                     });
                     
-                    // best rate suggest karo 
+                    // 4. Best rate suggest karo
                     const bestRate = Math.max(...data.predictions.map(p => p.predicted_rate));
                     document.getElementById('alertTarget').value = bestRate.toFixed(2);
                     
-                    alert(suggestionText + `\nSuggested Target: ${bestRate.toFixed(2)} ${curr}`);
+                    alert(suggestionText + `\nSuggested Target: ${bestRate.toFixed(2)} ${toCurr}`);
                 }
             } catch (e) {
                 alert("Could not fetch AI suggestion.");
@@ -795,7 +798,6 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
     }
-
     if (setAlertBtn) {
         setAlertBtn.addEventListener('click', async () => {
             const target = document.getElementById('alertTarget').value;

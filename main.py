@@ -202,10 +202,10 @@ async def reverse_calculate(desired_amount: float = Form(...), target_currency: 
         else:
             desired_usd = desired_amount
 
-        # 3. Required USD invoice calculate 
+        # 3. Required USD invoice calculate (Fees ke saath)
         required_usd = calculate_required_invoice(desired_usd, 1.0)
 
-        # 4. if user can INR currency in wallet so it can conevert  in INR 
+        # 4. User ki currency mein convert karo
         required_in_user_currency = required_usd
         if user_currency == "INR":
             required_in_user_currency = required_usd * usd_to_inr
@@ -213,6 +213,8 @@ async def reverse_calculate(desired_amount: float = Form(...), target_currency: 
             required_in_user_currency = required_usd * usd_to_eur
         elif user_currency == "GBP":
             required_in_user_currency = required_usd * usd_to_gbp
+        elif user_currency == "USD":
+            required_in_user_currency = required_usd
 
         return {
             "required_usd": round(required_usd, 2),
@@ -221,9 +223,8 @@ async def reverse_calculate(desired_amount: float = Form(...), target_currency: 
             "target_currency": target_currency
         }
     except Exception as e:
-        print(f"REVERSE CALC ERROR: {e}")
+        print(f"REVERSE CALC ERROR: {e}") # <--- YEH LINE HONI CHAHIYE
         return {"error": str(e)}
-
     
 @app.post("/api/optimize-currency")
 async def optimize_currency(amount: float = Form(...), base_currency: str = Form("USD")):

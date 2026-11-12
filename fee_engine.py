@@ -95,16 +95,11 @@ def calculate_fee_leakage(total_gross_usd, fx_rate):
         "total_fees_local": round(total_fees_local, 2)
     }
 
-def calculate_required_invoice(desired_net_local, fx_rate):
+def calculate_required_invoice(desired_net_usd, fx_rate):
     # Reverse Math: Net se Gross nikalna
-    # Net = Gross * (1 - 0.044) * (1 - 0.04) * fx_rate
-    # Gross = Net / ((1 - 0.044) * (1 - 0.04) * fx_rate)
-    
-    multiplier = (1 - 0.044) * (1 - 0.04) * fx_rate
-    if multiplier == 0:
-        return 0
-    required_gross_usd = desired_net_local / multiplier
-    
+    # Net = Gross * (1 - 0.044) * (1 - 0.04)
+    multiplier = (1 - 0.044) * (1 - 0.04)
+    required_gross_usd = desired_net_usd / multiplier
     return round(required_gross_usd, 2)
 
 def get_smart_chat_response(user_message, current_rate, net_1000, invoice_for_50k):

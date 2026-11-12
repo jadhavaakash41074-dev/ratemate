@@ -322,13 +322,6 @@ document.addEventListener("DOMContentLoaded", () => {
             const targetCurrency = document.getElementById('reverseCurrency').value;
             const userCurrency = document.getElementById('reverseUserCurrency').value;
 
-            let sym = "₹";
-            if (targetCurrency === 'EUR') sym = "€";
-            if (targetCurrency === 'GBP') sym = "£";
-            if (targetCurrency === 'USD') sym = "$";
-            
-            document.getElementById('reverseSymbol').innerText = sym;
-
             reverseCalcBtn.innerText = "Calculating...";
             reverseCalcBtn.disabled = true;
 
@@ -345,7 +338,14 @@ document.addEventListener("DOMContentLoaded", () => {
                 
                 const data = await response.json();
                 
-                // Symbols selection                let targetSym = "₹";
+                // Agar backend se error aaya toh handle karo
+                if (data.error) {
+                    alert("Backend Error: " + data.error);
+                    return;
+                }
+
+                // Symbols selection
+                let targetSym = "₹";
                 if (targetCurrency === 'EUR') targetSym = "€";
                 if (targetCurrency === 'GBP') targetSym = "£";
                 if (targetCurrency === 'USD') targetSym = "$";
@@ -355,10 +355,15 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (userCurrency === 'GBP') userSym = "£";
                 if (userCurrency === 'USD') userSym = "$";
 
-                alert(`To receive ${targetSym}${parseFloat(desiredAmount).toLocaleString('en-IN')} ${targetCurrency} net, you need to invoice your client: $${data.required_usd} USD.\n\nThis will cost you approximately ${userSym}${data.required_in_user_currency.toLocaleString('en-IN')} ${userCurrency}.`);
+                // Safe values
+                const reqUsd = data.required_usd || 0;
+                const reqUser = data.required_in_user_currency || 0;
+
+                alert(`To receive ${targetSym}${parseFloat(desiredAmount).toLocaleString('en-IN')} ${targetCurrency} net, you need to invoice your client: $${reqUsd} USD.\n\nThis will cost you approximately ${userSym}${reqUser.toLocaleString('en-IN')} ${userCurrency}.`);
                 
             } catch (error) {
                 alert("Error calculating reverse amount");
+                console.error(error);
             } finally {
                 reverseCalcBtn.innerText = "Get Invoice Amount";
                 reverseCalcBtn.disabled = false;
